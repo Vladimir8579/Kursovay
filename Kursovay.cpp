@@ -108,13 +108,12 @@ int main(void)
 
 void Menu(void)
 {
-    setlocale(LC_ALL, "866");
-    std::cout << "Локаль: " << setlocale(LC_ALL,NULL) << std::endl;
-    printf( "апровл\n");
-    std::cout << "2. Create and show the AVL tree.\n";
-    std::cout << "3. Quite.\n";
-    std::cout << "вапрвапр: ";
+    std::cout << "1. Unsorted database.\n";
+    std::cout << "2. Create the AVL tree.\n";
+    std::cout << "q. Quite the program running .\n";
+    std::cout << "Choose action: ";
 }
+
 
 void Create(void)
 {
