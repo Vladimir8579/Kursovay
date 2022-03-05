@@ -1,36 +1,31 @@
 ﻿#pragma warning(default:4716)
 
 #include <iostream>
-#include <locale>
-#include <map>
-#include <list>
-#include <cmath>
-#include <vector>
-#include <cstdio>
-#include <cstdlib>
-#include <ctime>
+#include <fstream>
 #include <string>
-#include <iomanip>
-#include <conio.h>
-#include <fstream>
-#include <queue>
-#include <algorithm>
-#include <fstream>
-#include <unordered_map>
-#include <string.h>
+using namespace std;
+
 
 int sizes = 4000;
 char prodoljenie;
+int setlast = 3999;
+int timecast = 0;
+int tablecast = 0;
+unsigned short int maximum = -1;
+int ramzes;
+bool f = false;
+bool grow;
+string swaper;
 
-struct database // ya4eika dlya bazi
+struct database // Структура для базы данных
 {
-    char name[32] = { 0 };
-    unsigned short int number;
-    char post[22] = { 0 };
-    char date[8] = { 0 };
+    char FioEmployee[32] = { 0 };
+    unsigned short int DepartmentNumber;
+    char Position[22] = { 0 };
+    char DateOfBirth[8] = { 0 };
 } *stacks;
 
-struct lister // spisok
+struct lister // Список
 {
     lister* next;
     database* data;
@@ -42,49 +37,33 @@ struct queue
     lister* tail;
 };
 
-struct tree // derevo
+struct tree // Дерево
 {
     database* data;
-    int balance;
+    int TreeBalancing;
     tree* left;
     tree* right;
 }; tree* root;
 
-std::string swaper;
-bool sorted = false;
-int setfirst;
-int setlast = 3999;
-int timecast = 0;
-int tablecast = 0;
-unsigned short int maximum = -1;
-int ramzes;
-bool foundb = false;
-bool f = false;
-bool wlyapa = false;
-int numeric = 1;
-bool creature = false;
-bool grow;
-bool tryt = false;
 
-void index_cast(database* record[], lister* head);
-int searching(database* record[]);
-int o4erednoi_nenujnii_vivod(database* record[]);
-int quick_search(database* record[], int key);
-bool Comparator(int str1, int str2, std::string str3, std::string str4);
-int Separation(lister*& head, lister*& a, lister*& b, int& n);
+void Indexing(database* record[], lister* head);
+int ConclusionByTwenty(database* record[]);
+int Search(database* record[], int key);
+bool Compare(int str1, int str2, std::string str3, std::string str4);
+int Delimiter(lister*& head, lister*& a, lister*& b, int& n);
 int MergeSort(lister*& head);
-int L_R(tree* p);
+int LR(tree* p);
 void LL(tree*& p);
-void LR(tree*& p);
+void LRtoAVL(tree*& p);
 void RR(tree*& p);
 void RL(tree*& p);
-void avl(database* D, tree*& p);
-void print_spis(lister* head);
-void menu(void);
-void create_base(void);
-void add_queue(lister*& head, lister*& tail, database* Array);
-int diff(const database& a, const database& b);
-void qSort(database* array[], int L, int R);
+void AVL(database* D, tree*& p);
+void Print(lister* head);
+void Menu(void);
+void Create(void);
+void Queue(lister*& head, lister*& tail, database* Array);
+
+
 
 int main(void)
 {
@@ -92,35 +71,34 @@ int main(void)
     database* record[4000];
     head = NULL;
     tree* root = NULL;
-    create_base();
+    Create();
     while (key != 'q')
     {
         system("cls");
-        menu();
+        Menu();
         std::cin >> key;
         switch (key)
         {
         case '1':
-            print_spis(head);
+            Print(head);
             break;
         case '2':
         {
             MergeSort(head);
-            index_cast(record, head);
-            o4erednoi_nenujnii_vivod(record);
-            // rabotaet do suda
-            int f = quick_search(record, 240);
+            Indexing(record, head);
+            ConclusionByTwenty(record);            
+            int f = Search(record, 240);
             ramzes = f;
             std::cout << f + 1 << "-" << setlast + 1 << " - wave of tree to create.\n";
             for (f; f <= setlast; f++)
-                avl(record[f], root);
+                AVL(record[f], root);
             std::cout << "Representing of tree (->):\n";
-            L_R(root);
+            LR(root);
             system("pause>>void");
             ramzes = 0;
         }
         break;
-        case 'q':
+        case '3':
             exit(1);
             break;
         }
@@ -128,28 +106,30 @@ int main(void)
     return 0;
 }
 
-void menu(void)
+void Menu(void)
 {
-    std::cout << "1. Unsorted database.\n";
-    std::cout << "2. Create the AVL tree.\n";
-    std::cout << "q. Quite the program running .\n";
-    std::cout << "Choose action: ";
+    setlocale(LC_ALL, "866");
+    std::cout << "Локаль: " << setlocale(LC_ALL,NULL) << std::endl;
+    printf( "апровл\n");
+    std::cout << "2. Create and show the AVL tree.\n";
+    std::cout << "3. Quite.\n";
+    std::cout << "вапрвапр: ";
 }
 
-void create_base(void)
+void Create(void)
 {
     std::fstream file("BASE2.dat", std::ios::binary | std::ios::in);
     for (int i = 0; i < sizes; i++)
     {
         stacks = new database;
-        file.seekp(64 * i, std::ios::beg);
+        file.seekp(64 *i, std::ios::beg);
         file.read((char*)stacks, sizeof(database));
-        add_queue(head, tail, stacks);
+        Queue(head, tail, stacks);
     }
     file.close();
 }
 
-int o4erednoi_nenujnii_vivod(database* record[])
+int ConclusionByTwenty(database* record[])
 {
     system("cls");
     bool boolean = 0;
@@ -160,32 +140,31 @@ int o4erednoi_nenujnii_vivod(database* record[])
         if (boolean == 0)
         {
             std::cout << "+";
-            for (int x = 0; x < 119; x++)
+            for (int x = 0; x < 118; x++)
+                std::cout << "-";            
+            std::cout << "\n| Number\t| FioEmployee\t\t\t\t | Department \t| Post\t\t\t     | Date\t\t|\n+";
+            for (int x = 0; x < 118; x++)
                 std::cout << "-";
-            std::cout << "+";
-            std::cout << "\n| Number\t| Person\t\t\t\t | State\t| Post\t      \t\t      | Date\t\t|\n+";
-            for (int x = 0; x < 119; x++)
-                std::cout << "-";
-            std::cout << "+\n";
+            std::cout << "\n";
             boolean = 1;
         }
         std::cout << "| " << i + 1 << "\t\t| ";
-        swp = { record[i]->name };
+        swp = { record[i]->FioEmployee };
         std::cout << swp.substr(0, 32) << "\t | ";
-        std::cout << record[i]->number << "\t\t| ";
-        maximum = std::max(record[i + 1]->number, record[i]->number);
-        swp = { record[i]->post };
+        std::cout << record[i]->DepartmentNumber << "\t\t| ";
+        maximum = std::max(record[i + 1]->DepartmentNumber, record[i]->DepartmentNumber);
+        swp = { record[i]->Position };
         std::cout << swp.substr(0, 22) << "\t     | ";
-        swp = { record[i]->date };
+        swp = { record[i]->DateOfBirth };
         std::cout << swp.substr(0, 8) << "\t\t|\n";
         o4erednoi_nenujnii_c4et4ik++;
-        if (o4erednoi_nenujnii_c4et4ik == 20)
+        if (o4erednoi_nenujnii_c4et4ik == 50)
         {
-            std::cout << "+";
+            
             for (int x = 0; x < 119; x++)
                 std::cout << "-";
             std::cout << "+\n";
-            std::cout << "\nPress [1] to continue / Anything else for break:";
+            std::cout << "\nPress [1] to continue / To abort, press another key:";
             std::cin >> prodoljenie;
             if (prodoljenie == '1')
             {
@@ -203,7 +182,24 @@ int o4erednoi_nenujnii_vivod(database* record[])
 
 }
 
-void add_queue(lister*& head, lister*& tail, database* info)
+
+int CompareStr(char* s1, char* s2, int len)
+{
+    int i = 0;
+    int m = 0;
+    while (i < len && m == 0) {
+        if (s1[i] < s2[i])
+            m = -1;
+        else if (s1[i] > s2[i])
+            m = 1;
+        i++;
+    }
+    return m;
+}
+
+
+
+void Queue(lister*& head, lister*& tail, database* info)
 {
     lister* p = new lister;
     p->data = info;
@@ -220,7 +216,7 @@ void add_queue(lister*& head, lister*& tail, database* info)
     }
 }
 
-void print_spis(lister* head)
+void Print(lister* head)
 {
     short int n = 0;
     short int i = 1;
@@ -234,34 +230,34 @@ void print_spis(lister* head)
         if (table == false)
         {
             std::cout << "+";
-            for (int x = 0; x < 119; x++)
+            for (int x = 0; x < 118; x++)
                 std::cout << "-";
-            std::cout << "+";
-            std::cout << "\n| Number\t| Person\t\t\t\t | State\t| Post\t      \t\t     | Date\t\t|\n+";
-            for (int x = 0; x < 119; x++)
+            
+            std::cout << "\n| Number\t| FioEmployee\t\t\t\t | Department\t| Post\t\t\t     | Date\t\t|\n+";
+            for (int x = 0; x < 118; x++)
                 std::cout << "-";
-            std::cout << "+\n";
+            std::cout << "\n";
             table = true;
         }
 
         std::cout << "| " << i << "\t\t| ";
-        swp = { p->data->name };
+        swp = { p->data->FioEmployee };
         std::cout << swp.substr(0, 32) << "\t | ";
-        std::cout << p->data->number << "\t\t| ";
-        swp = { p->data->post };
+        std::cout << p->data->DepartmentNumber << "\t\t| ";
+        swp = { p->data->Position };
         std::cout << swp.substr(0, 22) << "\t     | ";
-        swp = { p->data->date };
+        swp = { p->data->DateOfBirth };
         std::cout << swp.substr(0, 8) << "\t\t|\n";
         i++;
         n++;
-        if (n == 20)
+        if (n == 50)
         {
             n = 0;
             std::cout << "+";
             for (int x = 0; x < 119; x++)
                 std::cout << "-";
-            std::cout << "+\n";
-            std::cout << "\nPress [1] to continue / Anything else for break:";
+            std::cout << "\n";
+            std::cout << "\nPress [1] to continue / To abort, press another key:";
             std::cin >> prodoljenie;
             if (prodoljenie == '1')
             {
@@ -288,7 +284,7 @@ void print_spis(lister* head)
         std::cout << "\n";
 }
 
-bool Comparator(int str1, int str2, std::string str3, std::string str4)
+bool Compare(int str1, int str2, std::string str3, std::string str4)
 {
     if ((str1 < str2) and (str3 < str4))
     {
@@ -305,7 +301,7 @@ bool Comparator(int str1, int str2, std::string str3, std::string str4)
     return false;
 }
 
-int Separation(lister*& head, lister*& a, lister*& b, int& n)
+int Delimiter(lister*& head, lister*& a, lister*& b, int& n)
 {
     lister* p, * q;
     a = head;
@@ -330,7 +326,7 @@ int MergeSort(lister*& head)
     int p = 1, q, r;
     if (head == NULL)
         return 0;
-    Separation(head, a, b, n);
+    Delimiter(head, a, b, n);
     while (p < n)
     {
         c[0].tail = (lister*)&(c[0].head);
@@ -351,11 +347,11 @@ int MergeSort(lister*& head)
             m -= r;
             while ((q > 0) && (r > 0))
             {
-                int str1 = a->data->number;
-                std::string str3 = a->data->name;
-                int  str2 = b->data->number;
-                std::string str4 = b->data->name;
-                if (Comparator(str1, str2, str3, str4))
+                int str1 = a->data->DepartmentNumber;
+                std::string str3 = a->data->FioEmployee;
+                int  str2 = b->data->DepartmentNumber;
+                std::string str4 = b->data->FioEmployee;
+                if (Compare(str1, str2, str3, str4))
                 {
                     c[i].tail->next = a;
                     c[i].tail = a;
@@ -396,7 +392,7 @@ int MergeSort(lister*& head)
     return 0;
 }
 
-void index_cast(database* record[], lister* head)
+void Indexing(database* record[], lister* head)
 {
     lister* p = head;
     for (int i = 0; i < sizes; i++)
@@ -406,19 +402,19 @@ void index_cast(database* record[], lister* head)
     }
 }
 
-int quick_search(database* Index[], int key)
+int Search(database* Index[], int key)
 {
     int l = 0;
     int r = 3999;
     while (l < r)
     {
         int m = (l + r) / 2;
-        if (Index[m]->number < key)
+        if (Index[m]->DepartmentNumber < key)
             l = m + 1;
         else
             r = m;
     }
-    if (Index[r]->number == key)
+    if (Index[r]->DepartmentNumber == key)
     {
         return r;
     }
@@ -426,36 +422,36 @@ int quick_search(database* Index[], int key)
 }
 std::string swp;
 int counter = 0;
-int L_R(tree* p)
+int LR(tree* p)
 {
     if (p != NULL)
     {
-        L_R(p->left);
-        //timecast++;
+        LR(p->left);
+        
         if (tablecast == 0)
         {
             std::cout << "+";
             for (int x = 0; x < 119; x++)
                 std::cout << "-";
             std::cout << "+";
-            std::cout << "\n| Number\t| Person\t\t\t\t | State\t| Post\t      \t\t     | Date\t\t|\n+";
+            std::cout << "\n| Number\t| FioEmployee\t\t\t\t | DepartmentNumber Number\t| Post\t\t\t| Date\t\t|\n+";
             for (int x = 0; x < 119; x++)
                 std::cout << "-";
             std::cout << "+\n";
         }
         counter++;
         std::cout << "| " << ramzes + 1 << "\t\t| ";
-        swp = { p->data->name };
+        swp = { p->data->FioEmployee };
         std::cout << swp.substr(0, 32) << "\t | ";
-        std::cout << p->data->number << "\t\t| ";
-        swp = { p->data->post };
+        std::cout << p->data->DepartmentNumber << "\t\t| ";
+        swp = { p->data->Position };
         std::cout << swp.substr(0, 22) << "\t     | ";
-        swp = { p->data->date };
+        swp = { p->data->DateOfBirth };
         std::cout << swp.substr(0, 8) << "\t\t|\n";
         ramzes++;
         tablecast++;
         timecast++;
-        L_R(p->right);
+        LR(p->right);
         if (ramzes == 3999)
         {
             for (int x = 0; x < 119; x++)
@@ -463,11 +459,6 @@ int L_R(tree* p)
             std::cout << "+\n";
 
         }
-        //if(counter == 20)
-        //{
-        //    if(getch() == '1')
-        //        counter
-        //}
     }
 }
 
@@ -475,39 +466,41 @@ void LL(tree*& p)
 {
     tree* q;
     q = p->left;
-    q->balance = 0;
-    p->balance = 0;
+    q->TreeBalancing = 0;
+    p->TreeBalancing = 0;
     p->left = q->right;
     q->right = p;
     p = q;
 }
 
-void LR(tree*& p)
+void LRtoAVL(tree*& p)
 {
     tree* q, * r;
     q = p->left;
     r = q->right;
-    if (r->balance < 0)
-        p->balance = 1;
+    if (r->TreeBalancing < 0)
+        p->TreeBalancing = 1;
     else
-        p->balance = 0;
-    if (r->balance > 0)
-        q->balance = -1;
+        p->TreeBalancing = 0;
+    if (r->TreeBalancing > 0)
+        q->TreeBalancing = -1;
     else
-        q->balance = 0;
-    r->balance = 0;
+        q->TreeBalancing = 0;
+    r->TreeBalancing = 0;
     q->right = r->left;
     p->left = r->right;
     r->left = q;
     r->right = p;
     p = r;
 }
+
+
 void RR(tree*& p)
 {
     tree* q;
     q = p->right;
-    q->balance = 0;
-    p->balance = 0;
+    q->TreeBalancing = 0;
+    p->TreeBalancing = 0;
     p->right = q->left;
     q->left = p;
     p = q;
@@ -518,13 +511,13 @@ void RL(tree*& p)
     tree* r, * q;
     q = p->right;
     r = q->left;
-    if (r->balance > 0)
-        p->balance = -1;
-    else p->balance = 0;
-    if (r->balance < 0)
-        q->balance = 1;
-    else q->balance = 0;
-    r->balance = 0;
+    if (r->TreeBalancing > 0)
+        p->TreeBalancing = -1;
+    else p->TreeBalancing = 0;
+    if (r->TreeBalancing < 0)
+        q->TreeBalancing = 1;
+    else q->TreeBalancing = 0;
+    r->TreeBalancing = 0;
     q->left = r->right;
     p->right = r->left;
     r->right = q;
@@ -532,7 +525,7 @@ void RL(tree*& p)
     p = r;
 }
 
-void avl(database* D, tree*& p)
+void AVL(database* D, tree*& p)
 {
     if (p == NULL)
     {
@@ -540,58 +533,58 @@ void avl(database* D, tree*& p)
         p->data = D;
         p->left = NULL;
         p->right = NULL;
-        p->balance = 0;
+        p->TreeBalancing = 0;
         grow = true;
     }
     else
         // > != >=
-        if (strcmp(p->data->name, D->name) > 0)
+        if (strcmp(p->data->FioEmployee, D->FioEmployee) > 0)
         {
-            avl(D, p->left);
+            AVL(D, p->left);
             if (grow == true)
             {
-                if (p->balance > 0)
+                if (p->TreeBalancing > 0)
                 {
-                    p->balance = 0;
+                    p->TreeBalancing = 0;
                     grow = 0;
                 }
                 else
-                    if (p->balance == 0)
+                    if (p->TreeBalancing == 0)
                     {
-                        p->balance = -1;
+                        p->TreeBalancing = -1;
                         grow = false;
                     }
                     else
-                        if (p->left->balance < 0)
+                        if (p->left->TreeBalancing < 0)
                         {
                             LL(p);
                             grow = false;
                         }
                         else
                         {
-                            LR(p);
+                            LRtoAVL(p);
                             grow = false;
                         }
             }
         }
         else
-            if (strcmp(p->data->name, D->name) <= 0)
+            if (strcmp(p->data->FioEmployee, D->FioEmployee) <= 0)
             {
-                avl(D, p->right);
+                AVL(D, p->right);
                 if (grow == true)
                 {
-                    if (p->balance < 0)
+                    if (p->TreeBalancing < 0)
                     {
-                        p->balance = 0;
+                        p->TreeBalancing = 0;
                         grow = false;
                     }
                     else
-                        if (p->balance == 0)
+                        if (p->TreeBalancing == 0)
                         {
-                            p->balance = 1;
+                            p->TreeBalancing = 1;
                         }
                         else
-                            if (p->right->balance > 0)
+                            if (p->right->TreeBalancing > 0)
                             {
                                 RR(p);
                                 grow = false;
